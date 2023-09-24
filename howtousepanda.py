@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Reading a CSV file
-csv_file = 'data.csv'
+csv_file = 'data\\housing.csv'
 df = pd.read_csv(csv_file)
 
 # Displaying the first few rows of the DataFrame
