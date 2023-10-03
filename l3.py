@@ -43,11 +43,9 @@ scaled_data = my_scaler.transform(df_X.iloc[:,0:-5])
 scaled_data_df = pd.DataFrame(scaled_data, columns=df_X.columns[0:-5])
 train_X = scaled_data_df.join(df_X.iloc[:,-5:])
 
-
-
-train_X["rooms_per_household"] = train_X["total_rooms"]/train_X["households"]
-train_X["bedrooms_per_room"] = train_X["total_bedrooms"]/train_X["total_rooms"]
-train_X["population_per_household"]=train_X["population"]/train_X["households"]
+# train_X["rooms_per_household"] = train_X["total_rooms"]/train_X["households"]
+# train_X["bedrooms_per_room"] = train_X["total_bedrooms"]/train_X["total_rooms"]
+# train_X["population_per_household"]=train_X["population"]/train_X["households"]
 
 columns_list = train_X.columns.tolist()
 new_order = ['longitude',
@@ -58,9 +56,9 @@ new_order = ['longitude',
   'population',
   'households',
   'median_income',
-  'rooms_per_household',
-  'bedrooms_per_room',
-  'population_per_household',
+  # 'rooms_per_household',
+  # 'bedrooms_per_room',
+  # 'population_per_household',
   'ocean_proximity_<1H OCEAN',
   'ocean_proximity_INLAND',
   'ocean_proximity_ISLAND',
@@ -71,17 +69,17 @@ train_X = train_X[new_order]
 corr_matrix = (train_X.iloc[:,0:-5]).corr()
 sns.heatmap(np.abs(corr_matrix))
 corr1 = np.corrcoef(train_X['longitude'], train_y)
-# print(corr1[0,1])
+print("longitude correlation wiht y is: ", corr1[0,1])
 corr2 = np.corrcoef(train_X['latitude'], train_y)
-# print(corr2[0,1])
+print("latitude correlation wiht y is: ",corr2[0,1])
 corr3 = np.corrcoef(train_X['total_rooms'], train_y)
-# print(corr3[0,1])
+print("total rooms correlation wiht y is: ",corr3[0,1])
 corr4 = np.corrcoef(train_X['total_bedrooms'], train_y)
-# print(corr4[0,1])
+print("total bedrooms correlation wiht y is: ",corr4[0,1])
 corr5 = np.corrcoef(train_X['population'], train_y)
-# print(corr5[0,1])
+print("population correlation wiht y is: ", corr5[0,1])
 corr6 = np.corrcoef(train_X['households'], train_y)
-# print(corr6[0,1])
+print("households correlation wiht y is: ", corr6[0,1])
 train_X = train_X.drop(['longitude'], axis=1)
 train_X = train_X.drop(['total_bedrooms'], axis=1)
 train_X = train_X.drop(['population'], axis=1)
@@ -128,6 +126,43 @@ print("Model 2 training MAE is: ", round(model2_train_mae,2))
     # print("Actual values:", some_actual_values)
 
 
+
+#cross validation
+# from sklearn.model_selection import cross_val_score
+# model1 = LinearRegression()
+# model2 = RandomForestRegressor(n_estimators=30, random_state=42)
+
+# # Perform k-fold cross-validation for Model 1
+# scores_model1 = cross_val_score(model1, train_X, train_y, cv=5, scoring='neg_mean_absolute_error')
+# mae_model1 = -scores_model1.mean()
+# print("Model 1 Mean Absolute Error (CV):", round(mae_model1, 2))
+
+# # Perform k-fold cross-validation for Model 2
+# scores_model2 = cross_val_score(model2, train_X, train_y, cv=5, scoring='neg_mean_absolute_error')
+# mae_model2 = -scores_model2.mean()
+# print("Model 2 Mean Absolute Error (CV):", round(mae_model2, 2))
+
+
+
+
+#GridSearchCV
+# from sklearn.model_selection import GridSearchCV
+# param_grid = {
+#     'n_estimators': [10, 30, 50],
+#     'max_depth': [None, 10, 20, 30],
+#     'min_samples_split': [2, 5, 10],
+#     'min_samples_leaf': [1, 2, 4],
+#     'max_features': ['sqrt', 'log2']
+# }
+# model2 = RandomForestRegressor(random_state=42)
+# grid_search = GridSearchCV(model2, param_grid, cv=5, scoring='neg_mean_absolute_error', n_jobs=-1)
+# grid_search.fit(train_X, train_y)
+# best_params = grid_search.best_params_
+# print("Best Hyperparameters:", best_params)
+# best_model2 = grid_search.best_estimator_
+
+
+
 test_y = strat_test_set['median_house_value']
 df_test_X = strat_test_set.drop(columns = ["median_house_value"])
 scaled_data_test = my_scaler.transform(df_test_X.iloc[:,0:-5])
@@ -150,11 +185,6 @@ model2_test_mae = mean_absolute_error(model2_test_predictions, test_y)
 print("Model 2 MAE is: ", round(model2_test_mae,2))
 
 
-
-# Next:
-# Cross validation
-# GridSearch
-# Machine learning models
 
 
 
