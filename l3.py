@@ -43,9 +43,9 @@ scaled_data = my_scaler.transform(df_X.iloc[:,0:-5])
 scaled_data_df = pd.DataFrame(scaled_data, columns=df_X.columns[0:-5])
 train_X = scaled_data_df.join(df_X.iloc[:,-5:])
 
-# train_X["rooms_per_household"] = train_X["total_rooms"]/train_X["households"]
-# train_X["bedrooms_per_room"] = train_X["total_bedrooms"]/train_X["total_rooms"]
-# train_X["population_per_household"]=train_X["population"]/train_X["households"]
+train_X["rooms_per_household"] = train_X["total_rooms"]/train_X["households"]
+train_X["bedrooms_per_room"] = train_X["total_bedrooms"]/train_X["total_rooms"]
+train_X["population_per_household"]=train_X["population"]/train_X["households"]
 
 columns_list = train_X.columns.tolist()
 new_order = ['longitude',
@@ -56,9 +56,9 @@ new_order = ['longitude',
   'population',
   'households',
   'median_income',
-  # 'rooms_per_household',
-  # 'bedrooms_per_room',
-  # 'population_per_household',
+   'rooms_per_household',
+   'bedrooms_per_room',
+   'population_per_household',
   'ocean_proximity_<1H OCEAN',
   'ocean_proximity_INLAND',
   'ocean_proximity_ISLAND',
@@ -80,22 +80,22 @@ corr5 = np.corrcoef(train_X['population'], train_y)
 print("population correlation wiht y is: ", corr5[0,1])
 corr6 = np.corrcoef(train_X['households'], train_y)
 print("households correlation wiht y is: ", corr6[0,1])
-train_X = train_X.drop(['longitude'], axis=1)
-train_X = train_X.drop(['total_bedrooms'], axis=1)
-train_X = train_X.drop(['population'], axis=1)
-train_X = train_X.drop(['households'], axis=1)
+# train_X = train_X.drop(['longitude'], axis=1)
+# train_X = train_X.drop(['total_bedrooms'], axis=1)
+# train_X = train_X.drop(['population'], axis=1)
+# train_X = train_X.drop(['households'], axis=1)
 
 plt.figure()
 corr_matrix = train_X.corr()
 sns.heatmap(np.abs(corr_matrix))
 
 from sklearn.linear_model import LinearRegression
-model1 = LinearRegression()
-model1.fit(train_X, train_y)
+# model1 = LinearRegression()
+# model1.fit(train_X, train_y)
 
-some_data = train_X.iloc[:10]
-some_data.columns = train_X.columns
-some_house_values = train_y.iloc[:10]
+# some_data = train_X.iloc[:10]
+# some_data.columns = train_X.columns
+# some_house_values = train_y.iloc[:10]
 
 # for i in range(10):
 #     some_predictions = model1.predict(some_data.iloc[i].values.reshape(1, -1))
@@ -110,11 +110,11 @@ from sklearn.metrics import mean_absolute_error
 
 
 from sklearn.ensemble import RandomForestRegressor
-model2 = RandomForestRegressor(n_estimators=30, random_state=42)
-model2.fit(train_X, train_y)
-model2_predictions = model2.predict(train_X)
-model2_train_mae = mean_absolute_error(model2_predictions, train_y)
-print("Model 2 training MAE is: ", round(model2_train_mae,2))
+# model2 = RandomForestRegressor(n_estimators=30, random_state=42)
+# model2.fit(train_X, train_y)
+# model2_predictions = model2.predict(train_X)
+# model2_train_mae = mean_absolute_error(model2_predictions, train_y)
+# print("Model 2 training MAE is: ", round(model2_train_mae,2))
 
 
 # for i in range(10):
@@ -127,39 +127,39 @@ print("Model 2 training MAE is: ", round(model2_train_mae,2))
 
 
 
-#cross validation
-# from sklearn.model_selection import cross_val_score
-# model1 = LinearRegression()
-# model2 = RandomForestRegressor(n_estimators=30, random_state=42)
+# cross validation
+from sklearn.model_selection import cross_val_score
+model1 = LinearRegression()
+model2 = RandomForestRegressor(n_estimators=30, random_state=42)
 
-# # Perform k-fold cross-validation for Model 1
-# scores_model1 = cross_val_score(model1, train_X, train_y, cv=5, scoring='neg_mean_absolute_error')
-# mae_model1 = -scores_model1.mean()
-# print("Model 1 Mean Absolute Error (CV):", round(mae_model1, 2))
+# Perform k-fold cross-validation for Model 1
+scores_model1 = cross_val_score(model1, train_X, train_y, cv=5, scoring='neg_mean_absolute_error')
+mae_model1 = -scores_model1.mean()
+print("Model 1 Mean Absolute Error (CV):", round(mae_model1, 2))
 
-# # Perform k-fold cross-validation for Model 2
-# scores_model2 = cross_val_score(model2, train_X, train_y, cv=5, scoring='neg_mean_absolute_error')
-# mae_model2 = -scores_model2.mean()
-# print("Model 2 Mean Absolute Error (CV):", round(mae_model2, 2))
+# Perform k-fold cross-validation for Model 2
+scores_model2 = cross_val_score(model2, train_X, train_y, cv=5, scoring='neg_mean_absolute_error')
+mae_model2 = -scores_model2.mean()
+print("Model 2 Mean Absolute Error (CV):", round(mae_model2, 2))
 
 
 
 
 #GridSearchCV
-# from sklearn.model_selection import GridSearchCV
-# param_grid = {
-#     'n_estimators': [10, 30, 50],
-#     'max_depth': [None, 10, 20, 30],
-#     'min_samples_split': [2, 5, 10],
-#     'min_samples_leaf': [1, 2, 4],
-#     'max_features': ['sqrt', 'log2']
-# }
-# model2 = RandomForestRegressor(random_state=42)
-# grid_search = GridSearchCV(model2, param_grid, cv=5, scoring='neg_mean_absolute_error', n_jobs=-1)
-# grid_search.fit(train_X, train_y)
-# best_params = grid_search.best_params_
-# print("Best Hyperparameters:", best_params)
-# best_model2 = grid_search.best_estimator_
+from sklearn.model_selection import GridSearchCV
+param_grid = {
+    'n_estimators': [10, 30, 50],
+    'max_depth': [None, 10, 20, 30],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1, 2, 4],
+    'max_features': ['sqrt', 'log2']
+}
+model2 = RandomForestRegressor(random_state=42)
+grid_search = GridSearchCV(model2, param_grid, cv=5, scoring='neg_mean_absolute_error', n_jobs=-1)
+grid_search.fit(train_X, train_y)
+best_params = grid_search.best_params_
+print("Best Hyperparameters:", best_params)
+best_model2 = grid_search.best_estimator_
 
 
 
@@ -178,7 +178,7 @@ test_X = test_X.drop(['population'], axis=1)
 test_X = test_X.drop(['households'], axis=1)
 
 # model1_test_predictions = model1.predict(test_X)
-model2_test_predictions = model2.predict(test_X)
+model2_test_predictions = best_model2.predict(test_X)
 # model1_test_mae = mean_absolute_error(model1_test_predictions, test_y)
 model2_test_mae = mean_absolute_error(model2_test_predictions, test_y)
 # print("Model 1 MAE is: ", round(model1_test_mae,2))
